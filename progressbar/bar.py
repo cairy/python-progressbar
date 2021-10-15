@@ -21,6 +21,8 @@ from python_utils import converters
 
 import six
 
+from wcwidth import wcswidth
+
 from . import widgets
 from . import widgets as widgets_module  # Avoid name collision
 from . import base
@@ -282,7 +284,7 @@ class ProgressBar(StdRedirectMixin, ResizableMixin, ProgressBarBase):
 
     def __init__(self, min_value=0, max_value=None, widgets=None,
                  left_justify=True, initial_value=0, poll_interval=None,
-                 widget_kwargs=None, custom_len=utils.len_color,
+                 widget_kwargs=None, custom_len=wcswidth,
                  max_error=True, prefix=None, suffix=None, variables=None,
                  min_poll_interval=None, **kwargs):
         '''
@@ -617,9 +619,9 @@ class ProgressBar(StdRedirectMixin, ResizableMixin, ProgressBarBase):
         widgets = ''.join(self._to_unicode(self._format_widgets()))
 
         if self.left_justify:
-            return widgets.ljust(self.term_width)
+            return widgets.ljust(self.term_width-wcswidth(widgets)+len(widgets))
         else:
-            return widgets.rjust(self.term_width)
+            return widgets.rjust(self.term_width-wcswidth(widgets)+len(widgets))
 
     def _needs_update(self):
         'Returns whether the ProgressBar should redraw the line.'
